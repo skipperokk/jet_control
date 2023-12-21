@@ -1,0 +1,28 @@
+version: '2'
+services:
+  # за управление кафкой, назначет главного, проверяет живы или нет, распределяет нагрузку
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      # периодичность с которой зукипер будет опрашивать кафку не упала ли она (2 сек)
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      # внешний:внутренний порт
+      - 2181:2181
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    # указываем после какого сервиса будет запущена кафка
+    depends_on:
+      - zookeeper
+    ports:
+      - 29092:29092
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      # указываем, что будем использовать протокол без шифрования
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:29092
+      KAFKA_INTER_BROKER_LISTNER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+
